@@ -17,6 +17,7 @@ def _print_tag_table(table_dict):
     route_table.pprint_all(align="<")
     print("")
     agency_table.pprint_all(align="<")
+    print("")
 
 def get_tag_mapping():
     tag_table = {'routes': {}, "agencies": {}}
@@ -52,12 +53,13 @@ def _get_route_info(tag_table, route):
 def _print_route_stops(route_info, stop_list):
     if not route_info or not stop_list:
         return None
-    stop_table = Table(names=('Stop Number', 'Name'), dtype=('S', 'S'), meta={'name': "Route"})
+    stop_table = Table(names=('Stop Number', 'Name'), dtype=('S', 'S'))
     for stop in stop_list:
         stop_table.add_row(stop)
     print("")
     print("--> Route:", route_info[1].upper(),"<--")
     stop_table.pprint_all(align="<")
+    print("")
 
 def get_stops(route_info):
     try:
@@ -76,10 +78,25 @@ def get_stops(route_info):
         print("Problem with the route tag or stop id. Try again later.", e)
         return None
 
-def _print_predictions(predictions):
-    ### TO-DO: Create table according to predictions list and print
-    ### Don't forget to check if predictions is empty -> No prediction.
-    pass
+def _print_predictions(stop_id, predictions):
+    pred_table = Table(names=('Minutes', 'Route', 'Agency'), dtype=('S', 'S', 'S'))
+    if not predictions:
+        pred_table.add_row(('-', '-', '-'))
+    else:
+        for pred in predictions:
+            pred_table.add_row(pred[:3])
+    print("")
+    print("--> Stop:", stop_id, "<--")
+    pred_table.pprint_all(align="<")
+    print("")
+
+def filter_predictions(predictions, filter):
+    try:
+        assert filter and predictions
+        filter = filter[0]
+        return [pred for pred in predictions if filter in pred[3]]
+    except:
+        return predictions
 
 def get_predictions(stop_id, filter):
     try:
@@ -89,11 +106,14 @@ def get_predictions(stop_id, filter):
             print("Problem related with API. Try again later.")
             return None
         all_req = all_req.json()
-        ### TO-DO: Look at predictions list element format and implement
         for prediction in all_req["predictions"]:
-            predictions.append(prediction)
-        ### TO-DO: Check filters and apply if not None.
-        return predictions
+            route       = prediction['title']
+            agency      = prediction['agencyName']
+            minutes     = prediction['minutes']
+            route_tag   = prediction['tag']
+            agency_tag  = prediction['agency']
+            predictions.append((int(minutes), route, agency, [route_tag, agency_tag]))
+        return filter_predictions(predictions, filter)
     except Exception as e:
         print("Problem with the predictions. Try again later.", e)
         return None
@@ -106,7 +126,7 @@ def main(args):
         if args.stop:
             stop_id     = _fix_stop_id(args.stop[0])
             predictions = get_predictions(stop_id, args.filter)
-            _print_predictions(predictions)
+            _print_predictions(stop_id, predictions)
         elif args.list:
             route_tag  = args.list[0]
             route_info = _get_route_info(tag_table, route_tag)
