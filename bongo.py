@@ -1,9 +1,11 @@
 #! /usr/bin/env python3
 
 import sys
+import pytz
 import requests
 import numpy as np
 from parser import parameter_parser
+from datetime import datetime
 from astropy.table import Table, Column
 
 def _print_tag_table(table_dict):
@@ -86,6 +88,7 @@ def _print_predictions(stop_id, predictions):
         for pred in predictions:
             pred_table.add_row(pred[:3])
     print("")
+    print("--> Current Time:", datetime.now(pytz.timezone('America/Chicago')), "<--")
     print("--> Stop:", stop_id, "<--")
     pred_table.pprint_all(align="<")
     print("")
