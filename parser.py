@@ -6,24 +6,24 @@ def parameter_parser():
     parser.add_argument("-s", "--stop",
                         type = str,
                         nargs = 1,
-                        default = "0002",
-	                    help = "List the incoming buses for the given stop number. Default = 0002")
+                        default = None,
+	                    help = "List the incoming buses for the given stop number.")
     
     parser.add_argument("-f", "--filter",
                         type = str,
                         nargs = 1,
-                        default = "eastex",
+                        default = None,
 	                    help = "Filter the list according to given specification. This specification "\
                                "may be either a route tag like 'courthill' or an agency tag like "\
-                               "'coralville' or 'iowa-city'. It is 'eastex' by default. "\
+                               "'coralville' or 'iowa-city'. "\
                                "To see the tags run: "\
                                "\t ./bongo.py -t route or ./bongo.py -t agency")
     
     parser.add_argument("-l", "--list",
                         type = str,
                         nargs = 1,
-                        default = "eastex",
-	                    help = "List all of the stops for a given route tag. It is 'eastex' by default. "\
+                        default = None,
+	                    help = "List all of the stops for a given route tag. "\
                                "To see the tags run: "\
                                "\t ./bongo.py -t route or ./bongo.py -t agency")
 
@@ -31,6 +31,7 @@ def parameter_parser():
                         type = int,
                         nargs = 1,
                         default = 0,
+                        choices=[0,1],
                         help = "If tags argument passed as 1, it will print the name->tag mappings for "\
                                "all routes and agencies.")
 
